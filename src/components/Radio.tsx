@@ -1,12 +1,7 @@
-/*
- * Radio.tsx
- */
-
-
-import { For, Component, splitProps, ComponentProps, JSX } from 'solid-js'
+import { For, splitProps, JSX } from 'solid-js'
 import type { Option } from '../types'
 import cxx from '../cxx'
-import eventHandler from '../event-handler'
+import callHandler from '../helpers/callHandler'
 
 let nextId = 1
 let nextName = 1
@@ -27,7 +22,7 @@ interface Props extends JSX.IntrinsicAttributes {
  * @param {string} props.iconAfter
  * @param {boolean} props.loading
  */
-export default function Radio(allProps: Props): Component<Props> {
+export default function Radio(allProps: Props) {
   const [props, rest] = splitProps(allProps, [
     'id',
     'class',
@@ -62,13 +57,13 @@ interface GroupProps extends JSX.IntrinsicAttributes {
   onChange?: (value: any, ev: Event, o: Option) => void;
 }
 
-export function Group(props: GroupProps): Component<GroupProps> {
+export function Group(props: GroupProps) {
   const refs = {}
   const name = props.name || `radiogroup-${nextName++}`
 
   const onChange = (o: Option, ev) => {
     const previousValue = props.value
-    eventHandler(props.onChange, o.value, ev, o)
+    callHandler(props.onChange, o.value, ev, o)
     const currentValue = props.value
     if (props.value !== undefined && previousValue === currentValue) {
       ev.target.checked = false

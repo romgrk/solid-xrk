@@ -2,7 +2,7 @@ import { splitProps, createSignal, Accessor, Setter, JSX } from 'solid-js'
 import { For, Show } from 'solid-js/web'
 import type { Option } from '../types'
 import cxx from '../cxx'
-import eventHandler from '../event-handler'
+import callHandler from '../helpers/callHandler'
 import Button from './Button'
 import Input from './Input'
 import Popover, { PopoverAPI } from './Popover'
@@ -149,11 +149,11 @@ export default function Dropdown(allProps: Props) {
       if (ev.relatedTarget === popoverNode || popoverNode.contains(ev.relatedTarget as any))
         return
       close()
-      eventHandler(props.onBlur)
+      callHandler(props.onBlur)
     }
     const onFocus = () => {
       popover.open()
-      eventHandler(props.onFocus)
+      callHandler(props.onFocus)
       props.onSearch?.('')
     }
     return (
@@ -233,7 +233,7 @@ function createControlledValue<T>(
   const onChange = (o: Option, ev: Event) => {
     if (!isControlled)
       setValue(o.value)
-    eventHandler(props.onChange, o.value, ev, o)
+    callHandler(props.onChange, o.value, ev, o)
     if (isControlled)
       setOption(findOption())
     else

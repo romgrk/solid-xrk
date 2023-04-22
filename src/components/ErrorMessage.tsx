@@ -1,8 +1,3 @@
-/*
- * ErrorMessage.tsx
- */
-
-import { Component } from 'solid-js'
 import { Show } from 'solid-js/web'
 import Alert from './Alert'
 import Popover from './Popover'
@@ -12,7 +7,7 @@ interface Props {
   inline?: boolean,
 }
 
-export default function ErrorMessage(props: Props): Component<Props> {
+export default function ErrorMessage(props: Props) {
   if (props.inline)
     return (
       <Show when={props.value}

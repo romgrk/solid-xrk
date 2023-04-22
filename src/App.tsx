@@ -5,6 +5,12 @@ import Dropdown from './components/Dropdown'
 
 import styles from './App.module.css'
 
+const options = [
+  { value: 1, label: 'One' },
+  { value: 2, label: 'Two' },
+  { value: 3, label: 'Three' },
+]
+
 const App: Component = () => {
   return (
     <div class={styles.App}>
@@ -13,7 +19,7 @@ const App: Component = () => {
         <span>Box</span>
       </Box>
       <Box>
-        <Dropdown options={[]} />
+        <Dropdown options={options} />
       </Box>
     </div>
   )

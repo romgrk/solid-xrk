@@ -1,7 +1,8 @@
 import { on, createEffect, createSignal, onCleanup } from 'solid-js'
 import { Show, Portal } from 'solid-js/web'
 import { createPopper } from '@popperjs/core'
-import eventHandler from '../event-handler'
+import Disposer from '../helpers/Disposer'
+import callHandler from '../helpers/callHandler'
 import cxx from '../cxx'
 import './Popover.scss'
 
@@ -52,12 +53,12 @@ export default function Popover(props: Props) {
   const placement = () => props.placement ?? 'bottom-start'
   const closeOnClick = () => props.closeOnClick ?? true
   const popperOptions = () => getPopperOptions(placement(), arrowNode, isOpen(), console.log)
+  const disposer = new Disposer()
 
   onCleanup(() => {
     mount.detach()
     popper.detach()
-    if (closeOnClick())
-      document.documentElement.removeEventListener('click', onDocumentClick)
+    disposer.run()
   })
 
   const attach = () => {
@@ -65,8 +66,21 @@ export default function Popover(props: Props) {
       return
     mount.attach()
     popper.attach(triggerNode, mount.node()!, popperOptions())
-    if (closeOnClick())
+
+    if (closeOnClick()) {
+      const onDocumentClick = (ev: MouseEvent) => {
+        if (!isOpen())
+          return
+        if (!(triggerNode.contains(ev.target as Node | null) ||
+              mount.node()?.contains(ev.target as Node | null)))
+          close()
+      }
+
       document.documentElement.addEventListener('click', onDocumentClick)
+      disposer.push(() =>
+        document.documentElement.removeEventListener('click', onDocumentClick)
+      )
+    }
   }
 
   const ref = (node: HTMLElement) => triggerNode = node
@@ -74,21 +88,13 @@ export default function Popover(props: Props) {
     attach()
     setOpen(true)
     // popper.instance.setOptions(popperOptions())
-    eventHandler(props.onOpen)
+    callHandler(props.onOpen)
   }
   const close = () => {
     setOpen(false)
-    eventHandler(props.onClose)
+    callHandler(props.onClose)
   }
   const toggle = () => isOpen() ? close() : open()
-
-  const onDocumentClick = (ev: MouseEvent) => {
-    if (!isOpen())
-      return
-    if (!(triggerNode.contains(ev.target as Node | null) ||
-          mount.node()?.contains(ev.target as Node | null)))
-      close()
-  }
 
   const popoverClass = () => cxx('Popover', { open: isOpen() }, props.class)
   const arrowClass = () => `Popover__arrow Popover__arrow--${getInversePlacement(placement())}`

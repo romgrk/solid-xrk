@@ -1,13 +1,8 @@
-/*
- * Select.tsx
- */
-
-
-import { Component, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 import { For } from 'solid-js/web'
 import type { Option } from '../types'
 import cxx from '../cxx'
-import eventHandler from '../event-handler'
+import callHandler from '../helpers/callHandler'
 
 interface Props {
   class?: string;
@@ -22,7 +17,7 @@ interface Props {
 /**
  * @param {boolean} props.loading
  */
-export default function Select(allProps: Props): Component<Props> {
+export default function Select(allProps: Props) {
   const [props, rest] = splitProps(allProps, [
     'class',
     'size',
@@ -34,7 +29,7 @@ export default function Select(allProps: Props): Component<Props> {
   const value = () => props.value !== undefined ? JSON.stringify(props.value) : undefined
   const disabled = () => props.loading || rest.disabled
   const onChange = ev => {
-    eventHandler(props.onChange, JSON.parse(ev.target.value), ev)
+    callHandler(props.onChange, JSON.parse(ev.target.value), ev)
     if (props.value !== undefined && ev.target.value !== props.value)
       ev.target.value = JSON.stringify(props.value)
   }

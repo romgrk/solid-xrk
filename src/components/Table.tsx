@@ -1,8 +1,4 @@
-/*
- * Table.tsx
- */
-
-import { For, Component, JSX } from 'solid-js'
+import { For, JSX } from 'solid-js'
 import cxx from '../cxx'
 import { path } from 'rambda'
 
@@ -17,7 +13,7 @@ interface Props {
   columns?: ColumnProps[];
 }
 
-export default function Table(props: Props): Component<Props> {
+export default function Table(props: Props) {
   const columns = () => getColumns(props)
 
   return (

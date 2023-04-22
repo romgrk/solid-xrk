@@ -16,7 +16,7 @@ type Props = {
   justify?: true | 'start' | 'end' | 'between',
 }
 
-const LOCAL_PROPS = [
+const PROPS = [
   'class',
   'children',
   'horizontal',
@@ -34,7 +34,7 @@ const LOCAL_PROPS = [
  * A box container, using flex layout
  */
 export default function Box(allProps: Props) {
-  const [props, rest] = splitProps(allProps, LOCAL_PROPS)
+  const [props, rest] = splitProps(allProps, PROPS)
 
   return (
     <div

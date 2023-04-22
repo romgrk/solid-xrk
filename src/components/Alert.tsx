@@ -1,9 +1,4 @@
-/*
- * Alert.tsx
- */
-
-
-import { Component, JSX, splitProps } from 'solid-js'
+import { JSX, splitProps } from 'solid-js'
 import cxx from '../cxx'
 import Box from './Box'
 import Icon from './Icon'
@@ -20,7 +15,7 @@ interface Props extends JSX.CustomAttributes<HTMLElement>, JSX.DOMAttributes<HTM
 /**
  * Alert: a tag component
  */
-export default function Alert(allProps: Props): Component<Props> {
+export default function Alert(allProps: Props) {
   const [props, rest] = splitProps(allProps, [
     'class',
     'icon',

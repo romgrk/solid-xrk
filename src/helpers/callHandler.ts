@@ -1,4 +1,4 @@
-export default function eventHandler(
+export default function callHandler(
   callback: undefined | Function | [Function, any],
   ...args: any[]
 ) {

@@ -1,8 +1,4 @@
-/*
- * Tab.tsx
- */
-
-import { Component, JSX, splitProps, createSignal } from 'solid-js'
+import { JSX, splitProps, createSignal } from 'solid-js'
 import { For } from 'solid-js/web'
 import cxx from '../cxx'
 import Box from './Box'
@@ -26,7 +22,7 @@ type Props = HTMLProps & OwnProps
 /**
  * Tab: a tag component
  */
-export default function Tab(allProps: Props): Component<Props> {
+export default function Tab(allProps: Props) {
   const [activeValue, setActive] = createSignal(0)
   const [props, rest] = splitProps(allProps, [
     'class',

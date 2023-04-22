@@ -1,7 +1,7 @@
 import { splitProps } from 'solid-js'
 import type { Size } from '../types'
 import cxx from '../cxx'
-import eventHandler from '../event-handler'
+import callHandler from '../helpers/callHandler'
 
 let nextId = 1
 
@@ -30,7 +30,7 @@ export default function Checkbox(allProps: Props) {
 
   const onChange = (ev: Event) => {
     const target = ev.target as HTMLInputElement
-    eventHandler(props.onChange, target.checked, ev)
+    callHandler(props.onChange, target.checked, ev)
     if (props.value !== undefined && props.value !== target.checked)
       target.checked = props.value
   }

@@ -1,9 +1,4 @@
-/*
- * Tag.tsx
- */
-
-
-import { Component, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 import cxx from '../cxx'
 
 interface Props {
@@ -16,7 +11,7 @@ interface Props {
 /**
  * Tag: a tag component
  */
-export default function Tag(allProps: Props): Component<Props> {
+export default function Tag(allProps: Props) {
   const [props, rest] = splitProps(allProps, [
     'class',
     'variant',

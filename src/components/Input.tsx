@@ -1,6 +1,6 @@
 import { JSX, splitProps } from 'solid-js'
 import cxx from '../cxx'
-import eventHandler from '../event-handler'
+import callHandler from '../helpers/callHandler'
 import Icon from './Icon'
 
 
@@ -37,7 +37,7 @@ export default function Input(allProps: Props) {
   const disabled = () => props.loading || props.disabled
   const onChange = (ev: InputEvent) => {
     const target = ev.target as HTMLInputElement
-    eventHandler(props.onChange, target.value, ev)
+    callHandler(props.onChange, target.value, ev)
     if (rest.value !== undefined && target.value !== rest.value)
       target.value = rest.value
   }

@@ -20,7 +20,6 @@ type OwnProps = {
   size?: string,
   variant?: string,
   input?: boolean,
-  searching?: boolean,
   loading?: boolean,
   disabled?: boolean,
   placeholder?: JSX.Element,
@@ -40,7 +39,6 @@ const PROPS = [
   'size',
   'variant',
   'input',
-  'searching',
   'loading',
   'disabled',
   'placeholder',
@@ -160,7 +158,7 @@ export default function Dropdown(allProps: Props) {
       <Input
         ref={n => (inputNode = n) && popover.ref(n)}
         class={triggerClass()}
-        iconAfter={props.searching ? 'hourglass' : 'chevron-down' }
+        iconAfter='chevron-down'
         onFocus={onFocus}
         onBlur={onBlur}
         onChange={props.onSearch}

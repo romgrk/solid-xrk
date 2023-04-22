@@ -1,4 +1,3 @@
-
 .Button {
   display: flex;
   flex-direction: row;
@@ -28,4 +27,20 @@
 }
 .Button--disabled {
   color: #666666;
+}
+
+
+.ButtonGroup {
+  display: inline-flex;
+  flex-direction: row;
+}
+.ButtonGroup > *:not(:first-child) {
+  border-left: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.ButtonGroup > *:not(:last-child) {
+  border-right: none;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }

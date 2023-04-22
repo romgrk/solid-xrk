@@ -2,7 +2,7 @@ import { splitProps, JSX } from 'solid-js'
 import cxx from '../cxx'
 import './Box.scss'
 
-type DivProps = Omit<JSX.InputHTMLAttributes<HTMLInputElement>, 'onChange'>
+type DivProps = Omit<JSX.HTMLAttributes<HTMLDivElement>, 'onChange'>
 type Props = DivProps & {
   children?: any,
 

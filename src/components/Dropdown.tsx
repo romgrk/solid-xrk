@@ -2,13 +2,12 @@ import { splitProps, createSignal, Accessor, Setter, JSX } from 'solid-js'
 import { For, Show } from 'solid-js/web'
 import type { Option } from '../types'
 import cxx from '../cxx'
+import uniqueId from '../helpers/uniqueId'
 import callHandler from '../helpers/callHandler'
 import Button from './Button'
 import Input from './Input'
 import Popover, { PopoverAPI } from './Popover'
 import './Dropdown.scss'
-
-let nextId = 1
 
 type HTMLProps = Omit<JSX.DOMAttributes<HTMLInputElement>, 'onChange'>
 type OwnProps = {
@@ -65,7 +64,7 @@ export default function Dropdown(allProps: Props) {
       (inputNode.children[0] as HTMLInputElement).value = ''
   }
 
-  const id = props.id || `dropdown-${nextId++}`
+  const id = props.id || uniqueId()
   const disabled = () => props.disabled || props.loading
   const placeholder = () => props.placeholder ?? '-'
   const [value, option, onChange] = createControlledValue(props, close)

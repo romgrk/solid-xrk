@@ -32,7 +32,7 @@ const buttonProps: PropsKey[] = [
 /**
  * Button: a normal button
  */
-export default function Button(allProps: Props) {
+function Button(allProps: Props) {
   const [props, rest] = splitProps(allProps, buttonProps)
   return (
     <button
@@ -48,6 +48,18 @@ export default function Button(allProps: Props) {
     </button>
   )
 }
+
+type DivProps = JSX.HTMLAttributes<HTMLDivElement>
+Button.Group = function Group(props: DivProps) {
+  return (
+    <div
+      {...props}
+      class={cxx('ButtonGroup', props.class)}
+    />
+  )
+}
+
+export default Button
 
 // Helpers
 

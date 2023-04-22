@@ -2,6 +2,7 @@ import { createSignal } from 'solid-js'
 import type { Component } from 'solid-js'
 
 import Box from './components/Box'
+import Button from './components/Button'
 import Dropdown from './components/Dropdown'
 import Input from './components/Input'
 
@@ -23,6 +24,13 @@ const App: Component = () => {
         <span>Box</span>
       </Box>
       <Box>
+        <Button.Group>
+          <Button>A</Button>
+          <Button>B</Button>
+          <Button>C</Button>
+        </Button.Group>
+      </Box>
+      <Box>
         <Dropdown options={options} />
       </Box>
       <Box vertical>
@@ -33,13 +41,6 @@ const App: Component = () => {
             placeholder='Search here…'
             value={value()}
             onChange={setValue}
-          />
-        </Box>
-        <Box>
-          <Input
-            icon='search'
-            iconAfter='paper-airplane'
-            placeholder='Search here…'
           />
         </Box>
       </Box>

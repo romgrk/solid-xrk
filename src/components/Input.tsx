@@ -1,7 +1,6 @@
 import { JSX, splitProps } from 'solid-js'
 import { Size, Status } from '../types'
 import cxx from '../cxx'
-import callHandler from '../helpers/callHandler'
 import createControlledValue from '../helpers/createControlledValue'
 import Icon from './Icon'
 import './Input.scss'

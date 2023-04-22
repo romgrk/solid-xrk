@@ -1,3 +1,4 @@
+import { createSignal } from 'solid-js'
 import type { Component } from 'solid-js'
 
 import Box from './components/Box'
@@ -13,6 +14,8 @@ const options = [
 ]
 
 const App: Component = () => {
+  const [value, setValue] = createSignal('')
+
   return (
     <div class={styles.App}>
       <Box horizontal>
@@ -22,12 +25,23 @@ const App: Component = () => {
       <Box>
         <Dropdown options={options} />
       </Box>
-      <Box>
-        <Input
-          icon='search'
-          iconAfter='paper-airplane'
-          placeholder='Search here…'
-        />
+      <Box vertical>
+        <Box>
+          <Input
+            icon='search'
+            iconAfter='paper-airplane'
+            placeholder='Search here…'
+            value={value()}
+            onChange={setValue}
+          />
+        </Box>
+        <Box>
+          <Input
+            icon='search'
+            iconAfter='paper-airplane'
+            placeholder='Search here…'
+          />
+        </Box>
       </Box>
     </div>
   )

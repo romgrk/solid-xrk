@@ -2,6 +2,7 @@ import { JSX, splitProps } from 'solid-js'
 import { Size, Status } from '../types'
 import cxx from '../cxx'
 import callHandler from '../helpers/callHandler'
+import createControlledValue from '../helpers/createControlledValue'
 import Icon from './Icon'
 import './Input.scss'
 
@@ -16,7 +17,9 @@ type OwnProps = {
   iconAfter?: string,
   loading?: boolean,
   disabled?: boolean,
+
   value?: string,
+  defaultValue?: string,
   onChange?: (value: string, ev?: Event) => void,
 }
 type Props = InputProps & OwnProps
@@ -31,6 +34,8 @@ const PROPS = [
   'iconAfter',
   'loading',
   'disabled',
+  'value',
+  'defaultValue',
   'onChange',
 ] as const
 
@@ -39,13 +44,12 @@ const PROPS = [
  */
 export default function Input(allProps: Props) {
   const [props, rest] = splitProps(allProps, PROPS)
+  const [value, setValue] = createControlledValue(props, '')
 
   const disabled = () => props.loading || props.disabled
   const onChange = (ev: InputEvent) => {
     const target = ev.target as HTMLInputElement
-    callHandler(props.onChange, target.value, ev)
-    if (rest.value !== undefined && target.value !== rest.value)
-      target.value = rest.value
+    setValue(target.value, ev)
   }
 
   return (
@@ -65,6 +69,7 @@ export default function Input(allProps: Props) {
       {props.icon && <Icon name={props.icon} />}
       <input
         {...rest}
+        value={value()}
         disabled={disabled()}
         onInput={onChange}
       />

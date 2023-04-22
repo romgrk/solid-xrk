@@ -1,19 +1,22 @@
 import { JSX, splitProps } from 'solid-js'
+import { Size, Status } from '../types'
 import cxx from '../cxx'
 import callHandler from '../helpers/callHandler'
 import Icon from './Icon'
-
+import './Input.scss'
 
 type InputProps = Omit<JSX.InputHTMLAttributes<HTMLInputElement>, 'onChange'>
 type OwnProps = {
   ref?: any,
-  value?: string,
   class?: string,
-  status?: string,
+  size?: Size,
+  variant?: string,
+  status?: Status,
   icon?: string,
   iconAfter?: string,
   loading?: boolean,
   disabled?: boolean,
+  value?: string,
   onChange?: (value: string, ev?: Event) => void,
 }
 type Props = InputProps & OwnProps
@@ -21,6 +24,8 @@ type Props = InputProps & OwnProps
 const PROPS = [
   'ref',
   'class',
+  'size',
+  'variant',
   'status',
   'icon',
   'iconAfter',
@@ -34,6 +39,7 @@ const PROPS = [
  */
 export default function Input(allProps: Props) {
   const [props, rest] = splitProps(allProps, PROPS)
+
   const disabled = () => props.loading || props.disabled
   const onChange = (ev: InputEvent) => {
     const target = ev.target as HTMLInputElement
@@ -45,7 +51,16 @@ export default function Input(allProps: Props) {
   return (
     <span
       ref={props.ref}
-      class={cxx(`Input Input--${props.status}`, { disabled: disabled() }, props.class)}
+      class={
+        cxx(
+          'Input',
+          `Input--${props.size ?? 'md'}`,
+          `Input--${props.variant ?? 'primary'}`,
+          `Input--${props.status}`,
+          { disabled: disabled() },
+          props.class
+        )
+      }
     >
       {props.icon && <Icon name={props.icon} />}
       <input

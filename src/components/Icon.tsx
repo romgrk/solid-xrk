@@ -1,15 +1,28 @@
-import { splitProps } from "solid-js";
+import { splitProps } from "solid-js"
 import octicons from '@primer/octicons'
+import './Icon.scss'
 
-interface Props {
-  name: string;
-  width?: number;
-  info?: boolean;
-  success?: boolean;
-  warning?: boolean;
-  danger?: boolean;
-  spin?: boolean;
+type Props = {
+  name: string,
+  spin?: boolean,
+  width?: number,
+  color?: string,
+  info?: boolean,
+  success?: boolean,
+  warning?: boolean,
+  danger?: boolean,
 }
+
+const PROPS = [
+  'name',
+  'spin',
+  'width',
+  'color',
+  'info',
+  'success',
+  'warning',
+  'danger',
+] as const
 
 const colors = {
   info: '#0366D6',
@@ -17,6 +30,20 @@ const colors = {
   warning: '#B08800',
   danger: '#D73A49',
 }
+
+type GetIcon = (name: string, props?: any) => string
+
+let getIcon: GetIcon = (name: string, props?: any) => {
+  const icon = octicons[name]
+  if (!icon)
+    throw new Error('Invalid icon name: ' + name)
+  return icon.toSVG(props)
+}
+
+export function setIconFunction(fn: GetIcon) {
+  getIcon = fn
+}
+
 
 /*
  * Example: 
@@ -32,20 +59,14 @@ const colors = {
 /**
  * @param {string} props.name
  */
-export default function Icon(props: Props) {
-  const [ownProps, rest] = splitProps(props, ['name', 'info', 'success', 'warning', 'danger', 'spin'])
+export default function Icon(allProps: Props) {
+  const [props, rest] = splitProps(allProps, PROPS)
   const getColor = () => 
+    props.color ? props.color :
     props.info ? colors.info :
     props.success ? colors.success :
     props.warning ? colors.warning :
     props.danger ? colors.danger : undefined
-
-  const getIcon = () => {
-    const icon = octicons[ownProps.name]
-    if (!icon)
-      throw new Error('Invalid icon name: ' + ownProps.name)
-    return icon.toSVG(rest)
-  }
 
   const size = () => props.width || 16
 
@@ -53,7 +74,7 @@ export default function Icon(props: Props) {
     <span
       class={'Icon ' + (props.spin ? ' Icon--spin' : '')}
       style={{ color: getColor(), width: `${size()}px`, height: `${size()}px` }}
-      innerHTML={getIcon()}
+      innerHTML={getIcon(props.name, rest)}
     />
   )
 }

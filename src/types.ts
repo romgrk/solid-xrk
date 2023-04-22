@@ -1,6 +1,10 @@
+
 export type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
-export interface Option {
-  value: any;
-  label: any;
+export type Status = 'info' | 'success' | 'warning' | 'danger'
+
+export type Primitive = null | boolean | number | string
+export type Option = {
+  value: Primitive,
+  label: any,
 }

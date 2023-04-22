@@ -49,6 +49,7 @@ export type Props = {
 export default function Popover(props: Props) {
   let triggerNode: HTMLElement
   let arrowNode: HTMLDivElement
+  let savedFocus: HTMLElement | undefined
 
   const mount = createMountHooks()
   const popper = createPopperHooks()
@@ -85,11 +86,16 @@ export default function Popover(props: Props) {
 
   const ref = (node: HTMLElement) => triggerNode = node
   const open = () => {
+    savedFocus = document.activeElement as HTMLElement
     attach()
     setOpen(true)
     callHandler(props.onOpen)
   }
   const close = () => {
+    if (savedFocus) {
+      savedFocus.focus()
+      savedFocus = undefined
+    }
     setOpen(false)
     callHandler(props.onClose)
   }

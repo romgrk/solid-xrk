@@ -1,13 +1,9 @@
-/*
- * Popover.tsx
- */
-
-
-import { Component, on, createEffect, createSignal, onCleanup } from 'solid-js'
+import { on, createEffect, createSignal, onCleanup } from 'solid-js'
 import { Show, Portal } from 'solid-js/web'
 import { createPopper } from '@popperjs/core'
 import eventHandler from '../event-handler'
 import cxx from '../cxx'
+import './Popover.scss'
 
 type Placement = 
   'top' |
@@ -23,15 +19,16 @@ type Placement =
   'left-start' |
   'left-end'
 
-type TriggerFunc = (o: {
+export type PopoverAPI = {
   ref: (node: HTMLElement) => void,
   open: () => void,
   close: () => void,
   toggle: () => void,
   isOpen: () => boolean,
-}) => void;
+}
+export type TriggerFunc = (o: PopoverAPI) => void;
 
-interface Props {
+export type Props = {
   trigger: TriggerFunc;
   class?: string;
   closeOnClick?: boolean;
@@ -45,25 +42,16 @@ interface Props {
 /**
  * Popover: a primitive to create popover elements such as tooltips or dropdown menus
  */
-export default function Popover(props: Props): Component<Props> {
+export default function Popover(props: Props) {
   let triggerNode: HTMLElement
-  let arrowNode: HTMLElement
+  let arrowNode: HTMLDivElement
 
-  const mount = createMounHooks()
+  const mount = createMountHooks()
   const popper = createPopperHooks()
   const [isOpen, setOpen] = createSignal(false)
   const placement = () => props.placement ?? 'bottom-start'
   const closeOnClick = () => props.closeOnClick ?? true
-  const popperOptions = () => getPopperOptions(placement(), arrowNode, isOpen, console.log)
-
-  const attach = () => {
-    if (mount.node())
-      return
-    mount.attach()
-    popper.attach(triggerNode, mount.node(), popperOptions())
-    if (closeOnClick())
-      document.documentElement.addEventListener('click', onDocumentClick)
-  }
+  const popperOptions = () => getPopperOptions(placement(), arrowNode, isOpen(), console.log)
 
   onCleanup(() => {
     mount.detach()
@@ -72,7 +60,16 @@ export default function Popover(props: Props): Component<Props> {
       document.documentElement.removeEventListener('click', onDocumentClick)
   })
 
-  const ref = node => triggerNode = node
+  const attach = () => {
+    if (mount.node())
+      return
+    mount.attach()
+    popper.attach(triggerNode, mount.node()!, popperOptions())
+    if (closeOnClick())
+      document.documentElement.addEventListener('click', onDocumentClick)
+  }
+
+  const ref = (node: HTMLElement) => triggerNode = node
   const open = () => {
     attach()
     setOpen(true)
@@ -85,15 +82,16 @@ export default function Popover(props: Props): Component<Props> {
   }
   const toggle = () => isOpen() ? close() : open()
 
-  const onDocumentClick = ev => {
+  const onDocumentClick = (ev: MouseEvent) => {
     if (!isOpen())
       return
-    if (!(triggerNode.contains(ev.target) || mount.node().contains(ev.target)))
+    if (!(triggerNode.contains(ev.target as Node | null) ||
+          mount.node()?.contains(ev.target as Node | null)))
       close()
   }
 
   const popoverClass = () => cxx('Popover', { open: isOpen() }, props.class)
-  const arrowClass = () => cxx('Popover__arrow', [getInversePlacement(placement())])
+  const arrowClass = () => `Popover__arrow Popover__arrow--${getInversePlacement(placement())}`
 
   const [triggerWidth, setTriggerWidth] = createSignal(100)
   createEffect(on(isOpen, () => {
@@ -107,28 +105,28 @@ export default function Popover(props: Props): Component<Props> {
   return (
     <>
       {props.trigger({ ref, open, close, toggle, isOpen })}
-      <Show when={mount.node()}
-        children={
-          <Portal mount={mount.node()}
-            children={
-              <div class={popoverClass()} style={{ '--trigger-width': `${triggerWidth()}px` }}>
-                {props.arrow &&
-                  <div class={arrowClass()} ref={arrowNode} />
-                }
-                <div class='Popover__content'>
-                  {props.children}
-                </div>
-              </div>
+      <Show when={mount.node()}>
+        <Portal mount={mount.node()}>
+          <div class={popoverClass()} style={{ '--trigger-width': `${triggerWidth()}px` }}>
+            { props.arrow &&
+              <div class={arrowClass()} ref={arrowNode!} />
             }
-          />
-
-        }
-      />
+            <div class='Popover__content'>
+              {props.children}
+            </div>
+          </div>
+        </Portal>
+      </Show>
     </>
   )
 }
 
-function getPopperOptions(placement, arrowNode, isOpen, onUpdate) {
+function getPopperOptions(
+  placement: Placement,
+  arrowNode: HTMLElement,
+  isOpen: boolean,
+  onUpdate: Function
+) {
   const hasArrow = Boolean(arrowNode)
   return {
     placement: placement,
@@ -159,21 +157,21 @@ function getPopperOptions(placement, arrowNode, isOpen, onUpdate) {
       {
         /* Custom modifier */
         name: 'eventListeners',
-        enabled: isOpen(),
+        enabled: isOpen,
       },
       {
         /* Custom modifier */
         name: 'updateComponentState',
         enabled: true,
-        phase: 'write',
-        fn: onUpdate,
+        phase: 'write' as const,
+        fn: onUpdate as any,
       },
     ],
   }
 }
 
-function createMounHooks() {
-  const [mountNode, setMountNode] = createSignal(null)
+function createMountHooks() {
+  const [mountNode, setMountNode] = createSignal<HTMLElement | undefined>(undefined)
 
   const mount = {
     node: mountNode,
@@ -185,8 +183,9 @@ function createMounHooks() {
       setMountNode(node)
     },
     detach: () => {
-      if (mountNode())
-        document.body.removeChild(mountNode())
+      const node = mountNode()
+      if (node)
+        document.body.removeChild(node)
     },
   }
 
@@ -195,8 +194,8 @@ function createMounHooks() {
 
 function createPopperHooks() {
   const popper = {
-    instance: null,
-    attach: (triggerNode, popoverNode, options) => {
+    instance: null as ReturnType<typeof createPopper> | null,
+    attach: (triggerNode: Element, popoverNode: HTMLElement, options: Parameters<typeof createPopper>[2]) => {
       popper.instance = createPopper(
         triggerNode,
         popoverNode,
@@ -214,7 +213,7 @@ function createPopperHooks() {
   return popper
 }
 
-function getInversePlacement(p) {
+function getInversePlacement(p: Placement) {
   if (p.startsWith('top')) return 'bottom'
   if (p.startsWith('bottom')) return 'top'
   if (p.startsWith('left')) return 'right'

@@ -12,6 +12,11 @@ export default function cxx(baseName: string, ...args: any[]): string {
         }
       }
     }
+    else if (Array.isArray(arg)) {
+      for (let i = 0; i < arg.length; i++) {
+        result += ` ${baseName}--${arg[i]}`
+      }
+    }
   }
 
   return result

@@ -1,4 +1,5 @@
 import { splitProps } from 'solid-js'
+import type { Size } from '../types'
 import cxx from '../cxx'
 import eventHandler from '../event-handler'
 
@@ -8,7 +9,7 @@ type Props = {
   id?: string,
   value?: boolean,
   class?: string,
-  size?: string,
+  size?: Size,
   children?: any,
   disabled?: boolean,
   onChange?: (value: boolean, ev: Event) => void,
@@ -38,7 +39,7 @@ export default function Checkbox(allProps: Props) {
     <span
       class={cxx(
         'Checkbox',
-        `Checkbox--${props.size ?? 'medium'}`,
+        `Checkbox--${props.size ?? 'md'}`,
         {
           disabled: props.disabled,
         },

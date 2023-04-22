@@ -5,7 +5,8 @@ import cxx from '../cxx'
 import eventHandler from '../event-handler'
 import Button from './Button'
 import Input from './Input'
-import Popover from './Popover'
+import Popover, { PopoverAPI } from './Popover'
+import './Dropdown.scss'
 
 let nextId = 1
 
@@ -56,10 +57,11 @@ export default function Dropdown(allProps: Props) {
 
   // TODO: pass popover-props to popover
 
-  let popover
-  let popoverNode: HTMLElement
+  let popover: PopoverAPI
+  let popoverNode: HTMLDivElement
   let inputNode: HTMLElement
-  let close = () => {
+
+  const close = () => {
     popover.close()
     if (inputNode)
       (inputNode.children[0] as HTMLInputElement).value = ''
@@ -71,7 +73,7 @@ export default function Dropdown(allProps: Props) {
   const [value, option, onChange] = createControlledValue(props, close)
   const [selected, setSelected] = createSignal(-1)
 
-  const onKeyDown = (ev) => {
+  const onKeyDown = (ev: KeyboardEvent) => {
     if (!popover.isOpen())
       popover.open()
     switch (ev.key) {
@@ -108,7 +110,7 @@ export default function Dropdown(allProps: Props) {
     ev.preventDefault()
   }
 
-  let previousActiveElement: HTMLElement
+  let previousActiveElement: HTMLElement | undefined
   const onOpen = () => {
     if (!props.input) {
       previousActiveElement = document.activeElement as HTMLElement
@@ -120,14 +122,14 @@ export default function Dropdown(allProps: Props) {
   const onClose = () => {
     if (previousActiveElement) {
       previousActiveElement.focus()
-      previousActiveElement = null
+      previousActiveElement = undefined
     }
   }
 
   const triggerLabel = () => option()?.label ?? value() ?? placeholder()
   const triggerClass = () =>
     cxx('Dropdown', [props.size, props.variant], { disabled: disabled() }, props.class)
-  const trigger = (popover_) => {
+  const trigger = (popover_: PopoverAPI) => {
     popover = popover_
     return props.input ? triggerInput() : triggerButton()
   }
@@ -136,15 +138,15 @@ export default function Dropdown(allProps: Props) {
       ref={popover.ref}
       class={triggerClass()}
       iconAfter='chevron-down'
-      onClick={popover.open}
+      onClick={() => popover.open()}
       {...rest}
     >
       {triggerLabel()}
     </Button>
 
   const triggerInput = () => {
-    const onBlur = ev => {
-      if (ev.relatedTarget === popoverNode || popoverNode.contains(ev.relatedTarget))
+    const onBlur = (ev: FocusEvent) => {
+      if (ev.relatedTarget === popoverNode || popoverNode.contains(ev.relatedTarget as any))
         return
       close()
       eventHandler(props.onBlur)
@@ -172,7 +174,7 @@ export default function Dropdown(allProps: Props) {
   const popoverClass = () =>
     cxx('Dropdown__popover', props.class)
 
-  const itemClass = (o, index) =>
+  const itemClass = (o: Option, index: number) =>
     cxx('Dropdown__item', { active: value() === o.value, selected: selected() === index }, 'sel-' + selected())
 
   return (
@@ -181,9 +183,9 @@ export default function Dropdown(allProps: Props) {
       onOpen={onOpen}
       onClose={onClose}
     >
-      <ul
+      <div
         id={id}
-        ref={popoverNode}
+        ref={popoverNode!}
         tabindex='-1'
         role='listbox'
         class={popoverClass()}
@@ -192,7 +194,7 @@ export default function Dropdown(allProps: Props) {
       >
         <For each={props.options}
           children={(o, index) =>
-            <li
+            <div
               id={`${id}--${o.value}`}
               role='option'
               aria-selected={value() === o.value ? 'true' : 'false'}
@@ -200,17 +202,15 @@ export default function Dropdown(allProps: Props) {
               onClick={[onChange, o]}
             >
               {o.label ?? o.value}
-            </li>
+            </div>
           }
         />
-        <Show when={props.options.length === 0}
-          children={
-            <li class='Dropdown__empty'>
-              {props.emptyMessage ?? 'No options'}
-            </li>
-          }
-        />
-      </ul>
+        <Show when={props.options.length === 0}>
+          <div class='Dropdown__empty'>
+            {props.emptyMessage ?? 'No options'}
+          </div>
+        </Show>
+      </div>
     </Popover>
   )
 }

@@ -1,5 +1,5 @@
 export default function eventHandler(
-  callback: Function | [Function, any],
+  callback: undefined | Function | [Function, any],
   ...args: any[]
 ) {
   if (Array.isArray(callback))

@@ -52,8 +52,6 @@ const PROPS = [
 export default function Dropdown(allProps: Props) {
   const [props, rest] = splitProps(allProps, PROPS)
 
-  // TODO: pass popover-props to popover
-
   let popover: PopoverAPI
   let popoverNode: HTMLDivElement
   let inputNode: HTMLElement
@@ -64,11 +62,12 @@ export default function Dropdown(allProps: Props) {
       (inputNode.children[0] as HTMLInputElement).value = ''
   }
 
-  const id = props.id || uniqueId()
+  const menuId = props.id || uniqueId()
   const disabled = () => props.disabled || props.loading
   const placeholder = () => props.placeholder ?? '-'
-  const [value, option, onChange] = createControlledValue(props, close)
   const [selected, setSelected] = createSignal(-1)
+
+  const [value, option, onChange] = createControlledValue(props, close)
 
   const onKeyDown = (ev: KeyboardEvent) => {
     if (!popover.isOpen())
@@ -103,25 +102,16 @@ export default function Dropdown(allProps: Props) {
     ev.preventDefault()
   }
 
-  let previousActiveElement: HTMLElement | undefined
   const onOpen = () => {
     if (!props.input) {
-      previousActiveElement = document.activeElement as HTMLElement
       popoverNode.focus()
     }
     const v = value()
     setSelected(props.options.findIndex(o => o.value === v) ?? -1)
   }
-  const onClose = () => {
-    if (previousActiveElement) {
-      previousActiveElement.focus()
-      previousActiveElement = undefined
-    }
-  }
 
   const triggerLabel = () => option()?.label ?? value() ?? placeholder()
-  const triggerClass = () =>
-    cxx('Dropdown', [props.size, props.variant], { disabled: disabled() }, props.class)
+  const triggerClass = () => cxx('Dropdown', [props.size, props.variant], { disabled: disabled() }, props.class)
   const trigger = (popover_: PopoverAPI) => {
     popover = popover_
     return props.input ? triggerInput() : triggerButton()
@@ -151,7 +141,7 @@ export default function Dropdown(allProps: Props) {
     }
     return (
       <Input
-        ref={n => (inputNode = n) && popover.ref(n)}
+        ref={(n: HTMLInputElement) => (inputNode = n) && popover.ref(n)}
         class={triggerClass()}
         iconAfter='chevron-down'
         onFocus={onFocus}
@@ -174,25 +164,24 @@ export default function Dropdown(allProps: Props) {
     <Popover
       trigger={trigger}
       onOpen={onOpen}
-      onClose={onClose}
     >
       <div
-        id={id}
+        id={menuId}
         ref={popoverNode!}
         tabindex='-1'
         role='listbox'
         class={popoverClass()}
-        aria-activedescendant={value() !== undefined ? `${id}--${value()}` : ''}
         onKeyDown={onKeyDown}
+        aria-activedescendant={value() !== undefined ? `${menuId}--${value()}` : ''}
       >
         <For each={props.options}
           children={(o, index) =>
             <button
-              id={`${id}--${o.value}`}
+              id={`${menuId}--${o.value}`}
               role='option'
-              aria-selected={value() === o.value ? 'true' : 'false'}
               class={itemClass(o, index())}
               onClick={[onChange, o]}
+              aria-selected={value() === o.value ? 'true' : 'false'}
             >
               {o.label ?? o.value}
             </button>

@@ -65,6 +65,7 @@ export default function Dropdown(allProps: Props) {
   const menuId = props.id || uniqueId()
   const disabled = () => props.disabled || props.loading
   const placeholder = () => props.placeholder ?? '-'
+  const [isOpen, setOpen] = createSignal(false)
   const [selected, setSelected] = createSignal(-1)
 
   const [value, option, onChange] = createControlledValue(props, close)
@@ -102,7 +103,10 @@ export default function Dropdown(allProps: Props) {
     ev.preventDefault()
   }
 
-  const onOpen = () => {
+  const onChangeOpen = (open: boolean) => {
+    setOpen(open)
+    if (!open)
+      return
     if (!props.input) {
       popoverNode.focus()
     }
@@ -112,8 +116,8 @@ export default function Dropdown(allProps: Props) {
 
   const triggerLabel = () => option()?.label ?? value() ?? placeholder()
   const triggerClass = () => cxx('Dropdown', [props.size, props.variant], { disabled: disabled() }, props.class)
-  const trigger = (popover_: PopoverAPI) => {
-    popover = popover_
+  const trigger = (p: PopoverAPI) => {
+    popover = p
     return props.input ? triggerInput() : triggerButton()
   }
   const triggerButton = () =>
@@ -121,7 +125,8 @@ export default function Dropdown(allProps: Props) {
       ref={popover.ref}
       class={triggerClass()}
       iconAfter='chevron-down'
-      onClick={() => popover.open()}
+      onClick={popover.toggle}
+      aria-expanded={isOpen()}
       {...rest}
     >
       {triggerLabel()}
@@ -150,6 +155,7 @@ export default function Dropdown(allProps: Props) {
         onKeyDown={onKeyDown}
         placeholder={triggerLabel()}
         {...rest}
+        aria-expanded={isOpen()}
       />
     )
   }
@@ -163,7 +169,8 @@ export default function Dropdown(allProps: Props) {
   return (
     <Popover
       trigger={trigger}
-      onOpen={onOpen}
+      open={isOpen()}
+      onChange={onChangeOpen}
     >
       <div
         id={menuId}

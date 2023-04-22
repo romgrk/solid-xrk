@@ -2,6 +2,7 @@ import { on, createEffect, createSignal } from 'solid-js'
 import { Show, Portal } from 'solid-js/web'
 import { createPopper } from '@popperjs/core'
 import { createDisposer } from '../helpers/Disposer'
+import createControlledValue from '../helpers/createControlledValue'
 import callHandler from '../helpers/callHandler'
 import cxx from '../cxx'
 import './Popover.scss'
@@ -39,8 +40,9 @@ export type Props = {
   closeOnEsc?: boolean,
   closeOnBlur?: boolean,
 
-  onOpen?: () => void,
-  onClose?: () => void,
+  open?: boolean,
+  defaultOpen?: boolean,
+  onChange?: (open: boolean) => void,
 }
 
 /**
@@ -53,9 +55,15 @@ export default function Popover(props: Props) {
 
   const mount = createMountHooks()
   const popper = createPopperHooks()
-  const [isOpen, setOpen] = createSignal(false)
-  const placement = () => props.placement ?? 'bottom-start'
   const disposer = createDisposer()
+
+  const [isOpen, setOpen] = createControlledValue({
+    get value() { return props.open },
+    defaultValue: props.defaultOpen,
+    onChange: props.onChange,
+  }, false)
+
+  const placement = () => props.placement ?? 'bottom-start'
 
   const attach = () => {
     if (mount.node())
@@ -92,7 +100,6 @@ export default function Popover(props: Props) {
     savedFocus = document.activeElement as HTMLElement
     attach()
     setOpen(true)
-    callHandler(props.onOpen)
   }
   const close = () => {
     if (savedFocus) {
@@ -100,7 +107,6 @@ export default function Popover(props: Props) {
       savedFocus = undefined
     }
     setOpen(false)
-    callHandler(props.onClose)
   }
   const toggle = () => isOpen() ? close() : open()
 

@@ -104,14 +104,10 @@ export default function Popover(props: Props) {
   }
   const toggle = () => isOpen() ? close() : open()
 
-  const popoverClass = () => cxx('Popover', { open: isOpen() }, props.class)
-  const arrowClass = () => `Popover__arrow Popover__arrow--${getInversePlacement(placement())}`
-
   const [triggerWidth, setTriggerWidth] = createSignal(100)
   createEffect(on(isOpen, () => {
     setTriggerWidth(triggerNode.getBoundingClientRect().width)
   }))
-
 
   const onKeyDown = (ev: KeyboardEvent) => {
     switch (ev.key) {
@@ -127,6 +123,9 @@ export default function Popover(props: Props) {
     ev.preventDefault()
     ev.stopPropagation()
   }
+
+  const popoverClass = () => cxx('Popover', { open: isOpen() }, props.class)
+  const arrowClass = () => `Popover__arrow Popover__arrow--${getInversePlacement(placement())}`
 
   return (
     <>

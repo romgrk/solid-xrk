@@ -1,0 +1,50 @@
+* { 
+  box-sizing: border-box;
+}
+
+.App {
+  color: white;
+  background-color: #282c34;
+  padding: 2rem;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  font-size: calc(10px + 2vmin);
+}
+.header div {
+  margin-bottom: 1rem;
+}
+
+.header button {
+  font-size: inherit;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  margin-left: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #888;
+  cursor: pointer;
+}
+.header button:hover {
+  background-color: #999;
+}
+.header button:active {
+  background-color: #666;
+}
+
+.container {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+
+}
+
+.link {
+  color: #b318f0;
+}

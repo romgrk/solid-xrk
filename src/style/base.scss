@@ -1,0 +1,5 @@
+$BASE_SIZE: 0.25rem;
+
+@function size($n) {
+  @return $n * $BASE_SIZE;
+}

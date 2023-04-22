@@ -1,7 +1,7 @@
-import { on, createEffect, createSignal, onCleanup } from 'solid-js'
+import { on, createEffect, createSignal } from 'solid-js'
 import { Show, Portal } from 'solid-js/web'
 import { createPopper } from '@popperjs/core'
-import Disposer from '../helpers/Disposer'
+import { createDisposer } from '../helpers/Disposer'
 import callHandler from '../helpers/callHandler'
 import cxx from '../cxx'
 import './Popover.scss'
@@ -32,10 +32,13 @@ export type TriggerFunc = (o: PopoverAPI) => void;
 export type Props = {
   trigger: TriggerFunc;
   class?: string;
-  closeOnClick?: boolean;
   arrow?: boolean;
   placement?: Placement;
   children?: any;
+
+  closeOnEsc?: boolean;
+  closeOnBlur?: boolean;
+
   onOpen?: () => void,
   onClose?: () => void,
 }
@@ -51,23 +54,20 @@ export default function Popover(props: Props) {
   const popper = createPopperHooks()
   const [isOpen, setOpen] = createSignal(false)
   const placement = () => props.placement ?? 'bottom-start'
-  const closeOnClick = () => props.closeOnClick ?? true
   const popperOptions = () => getPopperOptions(placement(), arrowNode, isOpen(), console.log)
-  const disposer = new Disposer()
-
-  onCleanup(() => {
-    mount.detach()
-    popper.detach()
-    disposer.run()
-  })
+  const disposer = createDisposer()
 
   const attach = () => {
     if (mount.node())
       return
-    mount.attach()
-    popper.attach(triggerNode, mount.node()!, popperOptions())
 
-    if (closeOnClick()) {
+    mount.attach()
+    disposer.push(mount.detach)
+
+    popper.attach(triggerNode, mount.node()!, popperOptions())
+    disposer.push(popper.detach)
+
+    if (props.closeOnBlur ?? true) {
       const onDocumentClick = (ev: MouseEvent) => {
         if (!isOpen())
           return
@@ -87,7 +87,6 @@ export default function Popover(props: Props) {
   const open = () => {
     attach()
     setOpen(true)
-    // popper.instance.setOptions(popperOptions())
     callHandler(props.onOpen)
   }
   const close = () => {
@@ -101,19 +100,36 @@ export default function Popover(props: Props) {
 
   const [triggerWidth, setTriggerWidth] = createSignal(100)
   createEffect(on(isOpen, () => {
-    if (!triggerNode) {
-      console.warn('[Popover]: trigger node not defined! Set it with `popoverAPI.ref(node)`')
-      return
-    }
     setTriggerWidth(triggerNode.getBoundingClientRect().width)
   }))
+
+
+  const onKeyDown = (ev: KeyboardEvent) => {
+    switch (ev.key) {
+      case 'Escape': {
+        if (props.closeOnEsc ?? true) {
+          close()
+          break
+        }
+        return
+      }
+      default: return
+    }
+    ev.preventDefault()
+    ev.stopPropagation()
+  }
 
   return (
     <>
       {props.trigger({ ref, open, close, toggle, isOpen })}
       <Show when={mount.node()}>
         <Portal mount={mount.node()}>
-          <div class={popoverClass()} style={{ '--trigger-width': `${triggerWidth()}px` }}>
+          <div
+            class={popoverClass()}
+            tabIndex='-1'
+            style={{ '--trigger-width': `${triggerWidth()}px` }}
+            onKeyDown={onKeyDown}
+          >
             { props.arrow &&
               <div class={arrowClass()} ref={arrowNode!} />
             }

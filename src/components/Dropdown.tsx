@@ -75,10 +75,6 @@ export default function Dropdown(allProps: Props) {
     if (!popover.isOpen())
       popover.open()
     switch (ev.key) {
-      case 'Escape': {
-        close()
-        break
-      }
       case 'Enter': {
         let index = selected()
         if (index === -1 && props.input)
@@ -192,7 +188,7 @@ export default function Dropdown(allProps: Props) {
       >
         <For each={props.options}
           children={(o, index) =>
-            <div
+            <button
               id={`${id}--${o.value}`}
               role='option'
               aria-selected={value() === o.value ? 'true' : 'false'}
@@ -200,7 +196,7 @@ export default function Dropdown(allProps: Props) {
               onClick={[onChange, o]}
             >
               {o.label ?? o.value}
-            </div>
+            </button>
           }
         />
         <Show when={props.options.length === 0}>
@@ -216,7 +212,7 @@ export default function Dropdown(allProps: Props) {
 function createControlledValue<T>(
   props: Props,
   close: () => void
-): [() => any, Accessor<Option | undefined>, (o: Option, ev: Event) => void] {
+): [() => any, Accessor<Option | undefined>, (o: Option, ev?: Event) => void] {
   const isControlled = props.value !== undefined
 
   let value = () => props.value

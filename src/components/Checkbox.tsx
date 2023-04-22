@@ -1,58 +1,57 @@
-/*
- * Checkbox.tsx
- */
-
-
-import { Component, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 import cxx from '../cxx'
 import eventHandler from '../event-handler'
 
 let nextId = 1
 
-interface Props {
+type Props = {
   id?: string,
-  value?: string,
+  value?: boolean,
   class?: string,
   size?: string,
   children?: any,
   disabled?: boolean,
   onChange?: (value: boolean, ev: Event) => void,
 }
+const PROPS: (keyof Props)[] = [
+  'id',
+  'value',
+  'class',
+  'size',
+  'children',
+  'disabled',
+  'onChange',
+]
 
-/**
- * @param {string} props.icon
- * @param {string} props.iconAfter
- * @param {boolean} props.loading
- */
-export default function Checkbox(allProps: Props): Component<Props> {
-  const [props, rest] = splitProps(allProps, [
-    'id',
-    'value',
-    'class',
-    'size',
-    'children',
-    'disabled',
-    'onChange',
-  ])
+export default function Checkbox(allProps: Props) {
+  const [props, rest] = splitProps(allProps, PROPS)
   const id = props.id || `checkbox-${nextId++}`
-  const disabled = () => props.disabled
-  const onChange = ev => {
-    eventHandler(props.onChange, ev.target.checked, ev)
-    if (props.value !== undefined && props.value !== ev.target.checked)
-      ev.target.checked = props.value
+
+  const onChange = (ev: Event) => {
+    const target = ev.target as HTMLInputElement
+    eventHandler(props.onChange, target.checked, ev)
+    if (props.value !== undefined && props.value !== target.checked)
+      target.checked = props.value
   }
 
   return (
-    <span class={cxx('Checkbox', [props.size], {
-      disabled: disabled(),
-    }, props.class)}>
+    <span
+      class={cxx(
+        'Checkbox',
+        `Checkbox--${props.size ?? 'medium'}`,
+        {
+          disabled: props.disabled,
+        },
+        props.class
+      )}
+    >
       <input
         {...rest}
         type='checkbox'
         id={id}
         checked={props.value}
         onChange={onChange}
-        disabled={disabled()}
+        disabled={props.disabled}
       />
       <label for={id}>{props.children}</label>
     </span>

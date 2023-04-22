@@ -27,17 +27,17 @@ export type PopoverAPI = {
   toggle: () => void,
   isOpen: () => boolean,
 }
-export type TriggerFunc = (o: PopoverAPI) => void;
+export type TriggerFunc = (o: PopoverAPI) => void
 
 export type Props = {
-  trigger: TriggerFunc;
-  class?: string;
-  arrow?: boolean;
-  placement?: Placement;
-  children?: any;
+  trigger: TriggerFunc,
+  class?: string,
+  arrow?: boolean,
+  placement?: Placement,
+  children?: any,
 
-  closeOnEsc?: boolean;
-  closeOnBlur?: boolean;
+  closeOnEsc?: boolean,
+  closeOnBlur?: boolean,
 
   onOpen?: () => void,
   onClose?: () => void,

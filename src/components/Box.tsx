@@ -1,12 +1,14 @@
-import { splitProps } from 'solid-js'
+import { splitProps, JSX } from 'solid-js'
 import cxx from '../cxx'
 import './Box.scss'
 
-type Props = {
-  class?: string;
-  children?: any;
-  horizontal?: boolean;
-  vertical?: boolean;
+type DivProps = Omit<JSX.InputHTMLAttributes<HTMLInputElement>, 'onChange'>
+type Props = DivProps & {
+  children?: any,
+
+  class?: string,
+  horizontal?: boolean,
+  vertical?: boolean,
 
   fill?: boolean,
   wrap?: boolean,
@@ -18,7 +20,6 @@ type Props = {
 
 const PROPS = [
   'class',
-  'children',
   'horizontal',
   'vertical',
 
@@ -54,9 +55,7 @@ export default function Box(allProps: Props) {
         )
       }
       {...rest}
-    >
-      {props.children}
-    </div>
+    />
   )
 }
 

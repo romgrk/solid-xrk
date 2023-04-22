@@ -1,18 +1,19 @@
 import { splitProps, JSX } from 'solid-js'
+import type { Size } from '../types'
 import cxx from '../cxx'
 import Icon from './Icon'
+import './Button.scss'
 
 type Props = JSX.CustomAttributes<HTMLElement> & JSX.DOMAttributes<HTMLElement> & {
   class?: string,
+  size?: Size,
+  variant?: string,
+
   type?: 'button' | 'reset' | 'submit',
   icon?: string,
   iconAfter?: string,
   loading?: boolean,
-  variant?: string,
-  size?: string,
-  role?: string,
   disabled?: boolean,
-  children?: any,
 }
 type PropsKey = keyof Props
 
@@ -36,7 +37,7 @@ export default function Button(allProps: Props) {
   return (
     <button
       class={buttonClass(props)}
-      disabled={props.disabled}
+      disabled={props.disabled || props.loading}
       type={props.type ?? 'button'}
       {...rest}
     >
@@ -51,7 +52,7 @@ export default function Button(allProps: Props) {
 // Helpers
 
 export function buttonClass(props: Props) {
-  const size = props.size ?? 'medium'
+  const size = props.size ?? 'md'
   const variant = props.variant ?? 'primary'
 
   return cxx(

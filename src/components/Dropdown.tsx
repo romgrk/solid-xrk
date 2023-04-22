@@ -1,8 +1,4 @@
-/*
- * Dropdown.tsx
- */
-
-import { Component, splitProps, createSignal, JSX } from 'solid-js'
+import { splitProps, createSignal, JSX } from 'solid-js'
 import { For, Show } from 'solid-js/web'
 import type { Option } from '../types'
 import cxx from '../cxx'
@@ -14,7 +10,7 @@ import Popover from './Popover'
 let nextId = 1
 
 type HTMLProps = Omit<JSX.DOMAttributes<HTMLInputElement>, 'onChange'>
-interface OwnProps {
+type OwnProps = {
   options: Option[],
   id?: string,
   class?: string,
@@ -34,27 +30,29 @@ interface OwnProps {
 }
 type Props = HTMLProps & OwnProps
 
-export default function Dropdown(allProps: Props): Component<Props> {
-  const [props, rest] = splitProps(allProps, [
-    'options',
-    'id',
-    'class',
-    'value',
-    'defaultValue',
-    'size',
-    'variant',
-    'input',
-    'searching',
-    'loading',
-    'disabled',
-    'placeholder',
-    'emptyMessage',
-    'children',
-    'onChange',
-    'onSearch',
-    'onBlur',
-    'onFocus',
-  ])
+const PROPS = [
+  'options',
+  'id',
+  'class',
+  'value',
+  'defaultValue',
+  'size',
+  'variant',
+  'input',
+  'searching',
+  'loading',
+  'disabled',
+  'placeholder',
+  'emptyMessage',
+  'children',
+  'onChange',
+  'onSearch',
+  'onBlur',
+  'onFocus',
+] as (keyof Props)[]
+
+export default function Dropdown(allProps: Props) {
+  const [props, rest] = splitProps(allProps, PROPS)
 
   // TODO: pass popover-props to popover
 

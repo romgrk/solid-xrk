@@ -1,8 +1,4 @@
-/*
- * Icon.tsx
- */
-
-import { Component, splitProps } from "solid-js";
+import { splitProps } from "solid-js";
 import octicons from '@primer/octicons'
 
 interface Props {
@@ -36,7 +32,7 @@ const colors = {
 /**
  * @param {string} props.name
  */
-export default function Icon(props: Props): Component<Props> {
+export default function Icon(props: Props) {
   const [ownProps, rest] = splitProps(props, ['name', 'info', 'success', 'warning', 'danger', 'spin'])
   const getColor = () => 
     props.info ? colors.info :

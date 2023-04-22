@@ -55,7 +55,6 @@ export default function Popover(props: Props) {
   const popper = createPopperHooks()
   const [isOpen, setOpen] = createSignal(false)
   const placement = () => props.placement ?? 'bottom-start'
-  const popperOptions = () => getPopperOptions(placement(), arrowNode, isOpen(), console.log)
   const disposer = createDisposer()
 
   const attach = () => {
@@ -65,7 +64,11 @@ export default function Popover(props: Props) {
     mount.attach()
     disposer.push(mount.detach)
 
-    popper.attach(triggerNode, mount.node()!, popperOptions())
+    popper.attach(
+      triggerNode,
+      mount.node()!,
+      getPopperOptions(placement(), arrowNode, isOpen(), console.log)
+    )
     disposer.push(popper.detach)
 
     if (props.closeOnBlur ?? true) {

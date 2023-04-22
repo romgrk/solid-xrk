@@ -1,4 +1,4 @@
-import { splitProps, createSignal, JSX } from 'solid-js'
+import { splitProps, createSignal, Accessor, Setter, JSX } from 'solid-js'
 import { For, Show } from 'solid-js/web'
 import type { Option } from '../types'
 import cxx from '../cxx'
@@ -215,18 +215,22 @@ export default function Dropdown(allProps: Props) {
   )
 }
 
-function createControlledValue(props: Props, close: () => void): [() => any, () => Option, (o, ev) => void] {
+function createControlledValue<T>(
+  props: Props,
+  close: () => void
+): [() => any, Accessor<Option | undefined>, (o: Option, ev: Event) => void] {
   const isControlled = props.value !== undefined
 
   let value = () => props.value
-  let setValue
+  let setValue: Setter<T>
   if (!isControlled) {
-    [value, setValue] = createSignal(props.defaultValue)
+    [value, setValue] = createSignal<T>(props.defaultValue)
   }
 
   const findOption = () => props.options.find(o => o.value === value())
   const [option, setOption] = createSignal(findOption())
-  const onChange = (o, ev) => {
+
+  const onChange = (o: Option, ev: Event) => {
     if (!isControlled)
       setValue(o.value)
     eventHandler(props.onChange, o.value, ev, o)

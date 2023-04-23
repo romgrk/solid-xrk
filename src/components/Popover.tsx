@@ -75,7 +75,7 @@ export default function Popover(props: Props) {
     popper.attach(
       triggerNode,
       mount.node()!,
-      getPopperOptions(placement(), arrowNode, isOpen(), console.log)
+      getPopperOptions(placement(), arrowNode, isOpen())
     )
     disposer.push(popper.detach)
 
@@ -161,7 +161,6 @@ function getPopperOptions(
   placement: Placement,
   arrowNode: HTMLElement,
   isOpen: boolean,
-  onUpdate: Function
 ) {
   const hasArrow = Boolean(arrowNode)
   return {
@@ -195,13 +194,13 @@ function getPopperOptions(
         name: 'eventListeners',
         enabled: isOpen,
       },
-      {
-        /* Custom modifier */
-        name: 'updateComponentState',
-        enabled: true,
-        phase: 'write' as const,
-        fn: onUpdate as any,
-      },
+      // {
+      //   /* Custom modifier */
+      //   name: 'updateComponentState',
+      //   enabled: true,
+      //   phase: 'write' as const,
+      //   fn: onUpdate as any,
+      // },
     ],
   }
 }

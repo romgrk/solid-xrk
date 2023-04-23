@@ -39,6 +39,7 @@ export type Props = {
 
   closeOnEsc?: boolean,
   closeOnBlur?: boolean,
+  focusOnOpen?: boolean | string,
 
   open?: boolean,
   defaultOpen?: boolean,
@@ -51,6 +52,7 @@ export type Props = {
 export default function Popover(props: Props) {
   let triggerNode: HTMLElement
   let arrowNode: HTMLDivElement
+  let containerNode: HTMLDivElement
   let savedFocus: HTMLElement | undefined
 
   const mount = createMountHooks()
@@ -97,7 +99,17 @@ export default function Popover(props: Props) {
 
   const ref = (node: HTMLElement) => triggerNode = node
   const open = () => {
-    savedFocus = document.activeElement as HTMLElement
+    if (props.focusOnOpen) {
+      savedFocus = document.activeElement as HTMLElement
+      setTimeout(() => {
+        const element = (
+          props.focusOnOpen === true ?
+            containerNode :
+            containerNode.querySelector(props.focusOnOpen as string) ?? containerNode
+        ) as HTMLElement
+        element.focus?.()
+      })
+    }
     attach()
     setOpen(true)
   }
@@ -139,6 +151,7 @@ export default function Popover(props: Props) {
       <Show when={mount.node()}>
         <Portal mount={mount.node()}>
           <div
+            ref={containerNode!}
             class={popoverClass()}
             tabIndex='-1'
             style={{ '--trigger-width': `${triggerWidth()}px` }}

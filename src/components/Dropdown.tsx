@@ -1,9 +1,10 @@
 import { splitProps, createSignal, Accessor, Setter, JSX } from 'solid-js'
 import { For, Show } from 'solid-js/web'
-import type { Option } from '../types'
+import type { Primitive, Option } from '../types'
 import cxx from '../cxx'
 import uniqueId from '../helpers/uniqueId'
 import callHandler from '../helpers/callHandler'
+import Box from './Box'
 import Button from './Button'
 import Input from './Input'
 import Popover, { PopoverAPI } from './Popover'
@@ -24,7 +25,7 @@ type OwnProps = {
   placeholder?: JSX.Element,
   emptyMessage?: JSX.Element,
   children?: any,
-  onChange?: (value: string|number|null, ev: Event|undefined, o: Option) => void,
+  onChange?: (value: Primitive, ev: Event | undefined, o: Option) => void,
   onSearch?: (query: string, ev?: Event) => void,
 }
 type Props = HTMLProps & OwnProps
@@ -45,12 +46,11 @@ const PROPS = [
   'children',
   'onChange',
   'onSearch',
-  'onBlur',
-  'onFocus',
 ] as (keyof Props)[]
 
 export default function Dropdown(allProps: Props) {
   const [props, rest] = splitProps(allProps, PROPS)
+  const isCombobox = props.input === true
 
   let popover: PopoverAPI
   let popoverNode: HTMLDivElement
@@ -64,7 +64,7 @@ export default function Dropdown(allProps: Props) {
 
   const menuId = props.id || uniqueId()
   const disabled = () => props.disabled || props.loading
-  const placeholder = () => props.placeholder ?? '-'
+  const placeholder = () => props.placeholder ?? 'Select value'
   const [isOpen, setOpen] = createSignal(false)
   const [selected, setSelected] = createSignal(-1)
 
@@ -76,7 +76,7 @@ export default function Dropdown(allProps: Props) {
     switch (ev.key) {
       case 'Enter': {
         let index = selected()
-        if (index === -1 && props.input)
+        if (index === -1 && isCombobox)
           index = 0
         const o = props.options[index]
         if (o)
@@ -98,7 +98,18 @@ export default function Dropdown(allProps: Props) {
         setSelected(index)
         break
       }
-      default: return
+      default: {
+        if (isCombobox) {
+          switch (ev.key) {
+            case 'Escape': {
+              close()
+              break
+            }
+            default: return
+          }
+        }
+      }
+
     }
     ev.preventDefault()
   }
@@ -107,9 +118,6 @@ export default function Dropdown(allProps: Props) {
     setOpen(open)
     if (!open)
       return
-    if (!props.input) {
-      popoverNode.focus()
-    }
     const v = value()
     setSelected(props.options.findIndex(o => o.value === v) ?? -1)
   }
@@ -118,8 +126,9 @@ export default function Dropdown(allProps: Props) {
   const triggerClass = () => cxx('Dropdown', [props.size, props.variant], { disabled: disabled() }, props.class)
   const trigger = (p: PopoverAPI) => {
     popover = p
-    return props.input ? triggerInput() : triggerButton()
+    return isCombobox ? triggerInput() : triggerButton()
   }
+
   const triggerButton = () =>
     <Button
       ref={popover.ref}
@@ -137,11 +146,9 @@ export default function Dropdown(allProps: Props) {
       if (ev.relatedTarget === popoverNode || popoverNode.contains(ev.relatedTarget as any))
         return
       close()
-      callHandler(props.onBlur)
     }
     const onFocus = () => {
       popover.open()
-      callHandler(props.onFocus)
       props.onSearch?.('')
     }
     return (
@@ -168,11 +175,13 @@ export default function Dropdown(allProps: Props) {
 
   return (
     <Popover
+      focusOnOpen={!isCombobox}
       trigger={trigger}
       open={isOpen()}
       onChange={onChangeOpen}
     >
-      <div
+      <Box
+        vertical
         id={menuId}
         ref={popoverNode!}
         tabindex='-1'
@@ -199,7 +208,7 @@ export default function Dropdown(allProps: Props) {
             {props.emptyMessage ?? 'No options'}
           </div>
         </Show>
-      </div>
+      </Box>
     </Popover>
   )
 }

@@ -14,6 +14,12 @@ const options = [
   { value: 3, label: 'Three' },
 ]
 
+// Select components:
+//  - Dropdown menu (action, submenus)
+//  - Dropdown select (button)
+//  - Combobox select (input)
+//  - Autocomplete
+
 const App: Component = () => {
   const [value, setValue] = createSignal('')
 
@@ -32,6 +38,9 @@ const App: Component = () => {
       </Box>
       <Box>
         <Dropdown options={options} />
+      </Box>
+      <Box>
+        <Dropdown input options={options} />
       </Box>
       <Box vertical>
         <Box>

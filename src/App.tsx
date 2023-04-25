@@ -3,7 +3,7 @@ import type { Component } from 'solid-js'
 
 import Box from './components/Box'
 import Button from './components/Button'
-import Combobox, { ComboboxDemo } from './components/Combobox'
+import { ComboboxDemo } from './components/Combobox'
 import Dropdown from './components/Dropdown'
 import Input from './components/Input'
 

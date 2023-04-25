@@ -1,19 +1,19 @@
-.Dropdown {}
-.Dropdown__popover {
+.Combobox {}
+.Combobox__popover {
   list-style: none;
   padding: 0;
   margin: 0;
   min-width: var(--trigger-width);
 }
-.Dropdown__item {
+.Combobox__item {
   cursor: default;
   white-space: nowrap;
   text-align: left;
 }
-.Dropdown__item--selected,
-.Dropdown__item:hover {
+.Combobox__item--selected,
+.Combobox__item:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
-.Dropdown__item--active {
+.Combobox__item--active {
   background-color: rgba(#599eff, 0.25);
 }

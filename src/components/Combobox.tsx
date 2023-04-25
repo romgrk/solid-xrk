@@ -14,7 +14,7 @@ import Box from './Box'
 import Button from './Button'
 import Input from './Input'
 import Popover, { PopoverAPI } from './Popover'
-import './Dropdown.scss'
+import './Combobox.scss'
 
 type HTMLProps = Omit<JSX.DOMAttributes<HTMLInputElement>, 'onChange'>
 type OwnProps = {
@@ -32,7 +32,7 @@ type OwnProps = {
   value?: Primitive,
   defaultValue?: Primitive,
   onChange?: (value: Primitive, option?: Option) => void,
-  onSearch?: (query: string, ev?: Event) => void,
+  onQuery?: (query: string, ev?: Event) => void,
 }
 type Props = HTMLProps & OwnProps
 
@@ -50,10 +50,10 @@ const PROPS = [
   'value',
   'defaultValue',
   'onChange',
-  'onSearch',
+  'onQuery',
 ] as (keyof Props)[]
 
-export default function Dropdown(allProps: Props) {
+function Combobox(allProps: Props) {
   const [props, rest] = splitProps(allProps, PROPS)
 
   let popover: PopoverAPI
@@ -133,22 +133,21 @@ export default function Dropdown(allProps: Props) {
   }
 
   const triggerLabel = () => option()?.label ?? value() ?? placeholder()
-  const triggerClass = () => cxx('Dropdown', [props.size, props.variant], { disabled: disabled() }, props.class)
+  const triggerClass = () => cxx('Combobox', [props.size, props.variant], { disabled: disabled() }, props.class)
   const trigger = (p: PopoverAPI) => {
     popover = p
-    return triggerInput()
-  }
 
-  const triggerInput = () => {
     const onBlur = (ev: FocusEvent) => {
       if (ev.relatedTarget === popoverNode || popoverNode.contains(ev.relatedTarget as any))
         return
       close()
     }
+
     const onFocus = () => {
       popover.open()
-      props.onSearch?.('')
+      props.onQuery?.('')
     }
+
     return (
       <Input
         ref={(n: HTMLInputElement) => (inputNode = n) && popover.ref(n)}
@@ -156,7 +155,7 @@ export default function Dropdown(allProps: Props) {
         iconAfter='chevron-down'
         onFocus={onFocus}
         onBlur={onBlur}
-        onChange={props.onSearch}
+        onChange={props.onQuery}
         onKeyDown={onKeyDown}
         placeholder={triggerLabel()}
         {...rest}
@@ -166,10 +165,10 @@ export default function Dropdown(allProps: Props) {
   }
 
   const popoverClass = () =>
-    cxx('Dropdown__popover', props.class)
+    cxx('Combobox__popover', props.class)
 
   const itemClass = (o: Option, index: number) =>
-    cxx('Dropdown__item', { active: value() === o.value, selected: selected() === index })
+    cxx('Combobox__item', { active: value() === o.value, selected: selected() === index })
 
   return (
     <Popover
@@ -201,11 +200,35 @@ export default function Dropdown(allProps: Props) {
           }
         />
         <Show when={props.options.length === 0}>
-          <div class='Dropdown__empty'>
+          <div class='Combobox__empty'>
             {props.emptyMessage ?? 'No options'}
           </div>
         </Show>
       </Box>
     </Popover>
+  )
+}
+export default Combobox
+
+async function queryUsers(q: string): Promise<Option[]> {
+  const result = await fetch('https://jsonplaceholder.typicode.com/users')
+  const users  = await result.json()
+  return users
+    .filter((u: any) => u.name.toLowerCase().includes(q.toLowerCase()))
+    .map((u: any) => ({ value: u.id, label: u.name }))
+}
+
+export function ComboboxDemo() {
+  const [options, setOptions] = createSignal<Option[]>([])
+
+  const onQuery = (q: string) => {
+    queryUsers(q).then(setOptions)
+  }
+
+  return (
+    <Combobox
+      options={options()}
+      onQuery={onQuery}
+    />
   )
 }

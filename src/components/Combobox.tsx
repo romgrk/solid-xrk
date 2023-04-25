@@ -55,18 +55,14 @@ const PROPS = [
 
 function Combobox(allProps: Props) {
   const [props, rest] = splitProps(allProps, PROPS)
+  const isControlled = props.value !== undefined
 
   let popover: PopoverAPI
   let popoverNode: HTMLDivElement
   let inputNode: HTMLElement
 
-  const close = () => {
-    popover.close()
-    if (inputNode)
-      (inputNode.children[0] as HTMLInputElement).value = ''
-  }
-
-  const menuId = props.id || uniqueId()
+  const id = props.id || uniqueId()
+  const menuId = uniqueId()
   const disabled = () => props.disabled || props.loading
   const placeholder = () => props.placeholder ?? 'Select value'
   const [isOpen, setOpen] = createSignal(false)
@@ -80,11 +76,17 @@ function Combobox(allProps: Props) {
     setOption(findOption())
   })
 
+  const close = () => {
+    popover.close()
+    if (inputNode)
+      (inputNode.children[0] as HTMLInputElement).value = ''
+  }
+
   const onChange = (o: Option | undefined) => {
-    setValue(o ? o.value : null)
-    setOption(o)
+    setValue(o?.value ?? null, o)
+    if (!isControlled)
+      setOption(o)
     close()
-    callHandler(props.onChange, o ? o.value : null, o)
   }
 
   const onKeyDown = (ev: KeyboardEvent) => {
@@ -159,16 +161,20 @@ function Combobox(allProps: Props) {
         onKeyDown={onKeyDown}
         placeholder={triggerLabel()}
         {...rest}
+        role='combobox'
         aria-expanded={isOpen()}
+        aria-controls={menuId}
+        aria-autocomplete='list'
+        aria-active-option={value() ? `${id}--${value}` : ''}
+        aria-activedescendant={/* FIXME: selection id */ undefined}
       />
     )
   }
 
   const popoverClass = () =>
     cxx('Combobox__popover', props.class)
-
-  const itemClass = (o: Option, index: number) =>
-    cxx('Combobox__item', { active: value() === o.value, selected: selected() === index })
+  const itemClass = (o: Option, i: number) =>
+    cxx('Combobox__item', { active: value() === o.value, selected: selected() === i })
 
   return (
     <Popover
@@ -184,12 +190,11 @@ function Combobox(allProps: Props) {
         role='listbox'
         class={popoverClass()}
         onKeyDown={onKeyDown}
-        aria-activedescendant={value() !== undefined ? `${menuId}--${value()}` : ''}
       >
         <For each={props.options}
           children={(o, index) =>
             <button
-              id={`${menuId}--${o.value}`}
+              id={`${id}--${o.value}`}
               role='option'
               class={itemClass(o, index())}
               onClick={[onChange, o]}
@@ -227,6 +232,10 @@ export function ComboboxDemo() {
 
   return (
     <Combobox
+      value={null}
+      onChange={(value, option) => {
+        console.log([value, option])
+      }}
       options={options()}
       onQuery={onQuery}
     />

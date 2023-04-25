@@ -18,7 +18,6 @@ export default function createControlledValue<T, U>(
   defaultValue?: T
 ): [Accessor<T>, SetterWithData<T, U>]
 {
-
   const isControlled = 'value' in props
 
   let value: Accessor<T>

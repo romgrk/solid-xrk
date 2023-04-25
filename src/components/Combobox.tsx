@@ -12,10 +12,11 @@ import callHandler from '../helpers/callHandler'
 import createControlledValue from '../helpers/createControlledValue'
 import Box from './Box'
 import Button from './Button'
+import Input from './Input'
 import Popover, { PopoverAPI } from './Popover'
 import './Dropdown.scss'
 
-type HTMLProps = Omit<JSX.DOMAttributes<HTMLButtonElement>, 'onChange'>
+type HTMLProps = Omit<JSX.DOMAttributes<HTMLInputElement>, 'onChange'>
 type OwnProps = {
   options: Option[],
   id?: string,
@@ -57,9 +58,12 @@ export default function Dropdown(allProps: Props) {
 
   let popover: PopoverAPI
   let popoverNode: HTMLDivElement
+  let inputNode: HTMLElement
 
   const close = () => {
     popover.close()
+    if (inputNode)
+      (inputNode.children[0] as HTMLInputElement).value = ''
   }
 
   const menuId = props.id || uniqueId()
@@ -89,6 +93,8 @@ export default function Dropdown(allProps: Props) {
     switch (ev.key) {
       case 'Enter': {
         let index = selected()
+        if (index === -1)
+          index = 0
         const o = props.options[index]
         if (o)
           onChange(o)
@@ -109,6 +115,10 @@ export default function Dropdown(allProps: Props) {
         setSelected(index)
         break
       }
+      case 'Escape': {
+        close()
+        break
+      }
       default: return
     }
     ev.preventDefault()
@@ -126,20 +136,34 @@ export default function Dropdown(allProps: Props) {
   const triggerClass = () => cxx('Dropdown', [props.size, props.variant], { disabled: disabled() }, props.class)
   const trigger = (p: PopoverAPI) => {
     popover = p
-    return triggerButton()
+    return triggerInput()
   }
 
-  const triggerButton = () =>
-    <Button
-      ref={popover.ref}
-      class={triggerClass()}
-      iconAfter='chevron-down'
-      onClick={popover.toggle}
-      aria-expanded={isOpen()}
-      {...rest}
-    >
-      {triggerLabel()}
-    </Button>
+  const triggerInput = () => {
+    const onBlur = (ev: FocusEvent) => {
+      if (ev.relatedTarget === popoverNode || popoverNode.contains(ev.relatedTarget as any))
+        return
+      close()
+    }
+    const onFocus = () => {
+      popover.open()
+      props.onSearch?.('')
+    }
+    return (
+      <Input
+        ref={(n: HTMLInputElement) => (inputNode = n) && popover.ref(n)}
+        class={triggerClass()}
+        iconAfter='chevron-down'
+        onFocus={onFocus}
+        onBlur={onBlur}
+        onChange={props.onSearch}
+        onKeyDown={onKeyDown}
+        placeholder={triggerLabel()}
+        {...rest}
+        aria-expanded={isOpen()}
+      />
+    )
+  }
 
   const popoverClass = () =>
     cxx('Dropdown__popover', props.class)
@@ -149,7 +173,6 @@ export default function Dropdown(allProps: Props) {
 
   return (
     <Popover
-      focusOnOpen
       trigger={trigger}
       open={isOpen()}
       onChange={onChangeOpen}

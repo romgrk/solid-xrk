@@ -3,6 +3,7 @@ import type { Component } from 'solid-js'
 
 import Box from './components/Box'
 import Button from './components/Button'
+import Combobox from './components/Combobox'
 import Dropdown from './components/Dropdown'
 import Input from './components/Input'
 
@@ -40,7 +41,7 @@ const App: Component = () => {
         <Dropdown options={options} />
       </Box>
       <Box>
-        <Dropdown input options={options} />
+        <Combobox options={options} />
       </Box>
       <Box vertical>
         <Box>

@@ -3,7 +3,6 @@ import { Show, Portal } from 'solid-js/web'
 import { createPopper } from '@popperjs/core'
 import { createDisposer } from '../helpers/Disposer'
 import createControlledValue from '../helpers/createControlledValue'
-import callHandler from '../helpers/callHandler'
 import cxx from '../cxx'
 import './Popover.scss'
 
